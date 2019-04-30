@@ -5,44 +5,164 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 public class Grid {
 
-    private ObservableList<ObservableList<BooleanProperty>> cells;
+    private Cell[][] cells;
+    private int numberOfRows;
+    private int numberOfColumns;
 
-    void initializeCells(int n, int m)
+    public Grid(int n , int m)
     {
-        cells = FXCollections.observableArrayList();
-        for(int i = 0; i < n; i++)
-        {
-            ObservableList<BooleanProperty> row = FXCollections.observableArrayList();
-            cells.add(i, row);
-            for(int j = 0; j < m; j++)
-                row.add(new SimpleBooleanProperty(false));
-        }
+        numberOfColumns = m;
+        numberOfRows = n;
+        initializeCells();
     }
-    BooleanProperty checkIfAlive(int n, int m)
+    void initializeCells()
     {
-        return cells.get(n).get(m);
+        cells = new Cell[numberOfRows][numberOfColumns];
+        for(int i = 0; i < numberOfRows; i++)
+            for(int j = 0; j < numberOfColumns; j++)
+                cells[i][j] = new Cell();
+    }
+    boolean checkIfAlive(int i, int j)
+    {
+        return cells[i][j].isAlive();
     }
 
-    public ObservableList<ObservableList<BooleanProperty>> getCells() {
+    public Cell[][] getCells() {
         return cells;
     }
 
     public void updateCell(int i, int j) {
-        Boolean cellValue= checkIfAlive(i,j).getValue();
-        checkIfAlive(i,j).setValue(!cellValue);
+        cells[i][j].negateAlive();
     }
 
     public void nextGeneration() {
         goToNextState(calculateNextState());
     }
 
-    private void goToNextState(ObservableList<ObservableList<BooleanProperty>> nextState) {
+    private void goToNextState(boolean[][] nextState) {
+        for (int rowIndex = 0; rowIndex < getNumberOfRows(); rowIndex++) {
+            for (int columnIndex = 0; columnIndex < getNumberOfColumns(); columnIndex++) {
+                getCell(rowIndex, columnIndex).setAlive(nextState[rowIndex][columnIndex]);
+            }
+        }
     }
 
-    private ObservableList<ObservableList<BooleanProperty>> calculateNextState() {
-        ObservableList<ObservableList<BooleanProperty>> nextState = FXCollections.observableArrayList();
+    private boolean[][] calculateNextState() {
+        boolean[][] nextState = new boolean[getNumberOfRows()][getNumberOfColumns()];
+
+        for (int i = 0; i < getNumberOfRows(); i++) {
+            for (int j = 0; j < getNumberOfColumns(); j++) {
+                Cell cell = getCell(i, j);
+                int numberOfAliveNeighbours = countAliveNeighbours(i, j);
+                boolean isAliveInNextState =
+                        ((cell.isAlive() && numberOfAliveNeighbours == 2) || numberOfAliveNeighbours == 3);
+                nextState[i][j] = isAliveInNextState;
+            }
+        }
+
         return nextState;
     }
+    private int countAliveNeighbours(int rowIndex, int columnIndex) {
+        return (int) getNeighbours(rowIndex, columnIndex)
+                .stream()
+                .filter(Cell::isAlive)
+                .count();
+    }
+    private List<Cell> getNeighbours(int rowIndex, int columnIndex) {
+        int north = rowIndex - 1;
+        int east = columnIndex + 1;
+        int south = rowIndex + 1;
+        int west = columnIndex - 1;
+
+        return Arrays.asList(
+                getCell(north, west),
+                getCell(north, columnIndex),
+                getCell(north, east),
+                getCell(rowIndex, east),
+                getCell(south, east),
+                getCell(south, columnIndex),
+                getCell(south, west),
+                getCell(rowIndex, west)
+        );
+    }
+    public Cell getCell(int rowIndex, int columnIndex) {
+        return cells[getPeriodicRow(rowIndex)][getPeriodicColumn(columnIndex)];
+    }
+    private int getPeriodicRow(int rowIndex) {
+        return (rowIndex + getNumberOfRows()) % getNumberOfRows();
+    }
+
+    private int getPeriodicColumn(int columnIndex) {
+        return (columnIndex + getNumberOfColumns()) % getNumberOfColumns();
+    }
+    public int getNumberOfRows() {
+        return numberOfRows;
+    }
+
+    public void setNumberOfRows(int numberOfRows) {
+        this.numberOfRows = numberOfRows;
+    }
+
+    public int getNumberOfColumns() {
+        return numberOfColumns;
+    }
+
+    public void setNumberOfColumns(int numberOfColumns) {
+        this.numberOfColumns = numberOfColumns;
+    }
+
+    public void makeEveryCellDead() {
+        for(int i = 0; i < numberOfRows; i++)
+        {
+            for(int j = 0; j < numberOfColumns; j++)
+            {
+                getCell(i,j).setAlive(false);
+            }
+        }
+    }
+
+    public void makeGlider() {
+        int iCenter = numberOfRows / 2;
+        int jCenter = numberOfColumns / 2;
+        getCell(iCenter,jCenter).setAlive(true);
+        getCell(iCenter,jCenter-1).setAlive(true);
+        getCell(iCenter-1,jCenter).setAlive(true);
+        getCell(iCenter-1,jCenter+1).setAlive(true);
+        getCell(iCenter+1,jCenter+1).setAlive(true);
+    }
+
+    public void makeOscillator() {
+        int iCenter = numberOfRows / 2;
+        int jCenter = numberOfColumns / 2;
+        getCell(iCenter,jCenter).setAlive(true);
+        getCell(iCenter+1,jCenter).setAlive(true);
+        getCell(iCenter-1,jCenter).setAlive(true);
+
+    }
+
+    public void makeBeehive() {
+        int iCenter = numberOfRows / 2;
+        int jCenter = numberOfColumns / 2;
+        getCell(iCenter,jCenter-1).setAlive(true);
+        getCell(iCenter-1,jCenter).setAlive(true);
+        getCell(iCenter+1,jCenter).setAlive(true);
+        getCell(iCenter+1,jCenter+1).setAlive(true);
+        getCell(iCenter,jCenter+2).setAlive(true);
+        getCell(iCenter-1,jCenter+1).setAlive(true);
+
+    }
+
+    public void makeRandom() {
+        Random random = new Random();
+        for(int i = 0; i < numberOfRows; i++)
+            for(int j = 0; j < numberOfColumns; j++)
+                getCell(i,j).setAlive(random.nextBoolean());
+        }
 }
+

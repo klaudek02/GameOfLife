@@ -3,9 +3,7 @@ package visualization;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyLongWrapper;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
@@ -15,11 +13,11 @@ public class GameOfLife {
     private final Grid grid;
     private Timeline timeline;
     private final ReadOnlyLongWrapper generation = new ReadOnlyLongWrapper();
-
+    private States state;
 
     public GameOfLife(int n, int m) {
-        grid = new Grid();
-        buildGrid(n,m);
+        grid = new Grid(n, m);
+        buildGrid();
         setTimeline();
     }
 
@@ -36,16 +34,59 @@ public class GameOfLife {
         generation.set(generation.get()+1);
     }
 
-    public void updateState(States newValue) {
+    public void updateState(States newState) {
+        this.state = newState;
+        changeBoard();
     }
 
-    private void buildGrid(int n, int m)
-    {
-        grid.initializeCells(n,m);
+    private void changeBoard() {
+        cleanBoard();
+        switch(state)
+        {
+            case Glider:
+                makeGliderOnGrid();
+                break;
+            case Random:
+                makeRandomOnGrid();
+                break;
+            case Beehive:
+                makeBeehiveOnGrid();
+                break;
+            case Oscillator:
+                makeOscillatorOnGrid();
+                break;
+        }
     }
-    public ObservableList<ObservableList<BooleanProperty>> getGrid()
+
+    private void makeGliderOnGrid() {
+        grid.makeGlider();
+    }
+
+    private void makeRandomOnGrid() {
+        grid.makeRandom();
+    }
+
+    private void makeBeehiveOnGrid() {
+        grid.makeBeehive();
+    }
+
+    private void makeOscillatorOnGrid() {
+        grid.makeOscillator();
+    }
+
+    private void cleanBoard() {
+        stopGame();
+        grid.makeEveryCellDead();
+        generation.set(0);
+    }
+
+    private void buildGrid()
     {
-        return grid.getCells();
+        grid.initializeCells();
+    }
+    public Grid getGrid()
+    {
+        return grid;
     }
     public void updateCell(int i , int j)
     {
@@ -55,8 +96,8 @@ public class GameOfLife {
     {
         timeline.play();
     }
-    public void pauseGame()
-    {
 
+    public void stopGame() {
+        timeline.stop();
     }
 }

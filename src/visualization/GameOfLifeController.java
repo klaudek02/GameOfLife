@@ -44,6 +44,7 @@ public class GameOfLifeController implements Initializable {
     private GridPane visualizationPane;
 
     private GameOfLife gameOfLife;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         gameOfLife = new GameOfLife(60,40);
@@ -54,16 +55,17 @@ public class GameOfLifeController implements Initializable {
                     if(newValue != null)
                     {
                         gameOfLife.updateState(newValue);
-                        resizeVisualization();
                     }
                 });
+        resizeVisualization();
+        startButton.setOnAction((e)->gameOfLife.playGame());
+        stopButton.setOnAction((e)->gameOfLife.stopGame());
     }
 
 
     public void resizeVisualization()
     {
-        ObservableList<ObservableList<BooleanProperty>> grid = gameOfLife.getGrid();
-        System.out.println("resize");
+        Grid grid = gameOfLife.getGrid();
         visualizationPane.getChildren().clear();
         while(visualizationPane.getRowConstraints().size() > 0){
             visualizationPane.getRowConstraints().remove(0);
@@ -91,17 +93,29 @@ public class GameOfLifeController implements Initializable {
         for(int i = 0; i < 60; i++)
             for(int j = 0; j <40; j++){
                 StackPane square = new StackPane();
-                square.setStyle("-fx-background-color: white; -fx-border-color: black");
+                updateColor(square, false);
+
                 final int ii = i;
                 final int jj = j;
                 square.setOnMouseClicked(e-> {
                     gameOfLife.updateCell(ii, jj);
+
                 });
-                grid.get(i).get(j).addListener((e) -> {
-                    square.setStyle("-fx-background-color: yellow; -fx-border-color: black");
+                grid.getCell(i,j).aliveProperty().addListener((e) -> {
+                    updateColor(square, grid.getCell(ii,jj).isAlive());
                 });
 
                 visualizationPane.add(square,j,i);
             }
+    }
+
+    private void updateColor(StackPane square, boolean alive) {
+        if(alive){
+            square.setStyle("-fx-background-color: black; -fx-border-color: black");
+        }
+        else{
+            square.setStyle("-fx-background-color: white; -fx-border-color: black");
+        }
+
     }
 }
