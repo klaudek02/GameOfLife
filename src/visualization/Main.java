@@ -13,8 +13,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("gameOfLife.fxml"));
         primaryStage.setTitle("GameOfLife");
         primaryStage.setScene(new Scene(root, 700, 765));
-        primaryStage.setMinWidth(640);
-        primaryStage.setMinHeight(440);
+        primaryStage.sizeToScene();
         primaryStage.show();
     }
 

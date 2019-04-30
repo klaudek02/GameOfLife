@@ -1,9 +1,5 @@
 package visualization;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,9 +13,7 @@ public class Grid {
 
     public Grid(int n , int m)
     {
-        numberOfColumns = m;
-        numberOfRows = n;
-        initializeCells();
+        resize(n,m);
     }
     void initializeCells()
     {
@@ -27,14 +21,6 @@ public class Grid {
         for(int i = 0; i < numberOfRows; i++)
             for(int j = 0; j < numberOfColumns; j++)
                 cells[i][j] = new Cell();
-    }
-    boolean checkIfAlive(int i, int j)
-    {
-        return cells[i][j].isAlive();
-    }
-
-    public Cell[][] getCells() {
-        return cells;
     }
 
     public void updateCell(int i, int j) {
@@ -105,16 +91,9 @@ public class Grid {
         return numberOfRows;
     }
 
-    public void setNumberOfRows(int numberOfRows) {
-        this.numberOfRows = numberOfRows;
-    }
 
     public int getNumberOfColumns() {
         return numberOfColumns;
-    }
-
-    public void setNumberOfColumns(int numberOfColumns) {
-        this.numberOfColumns = numberOfColumns;
     }
 
     public void makeEveryCellDead() {
@@ -164,5 +143,11 @@ public class Grid {
             for(int j = 0; j < numberOfColumns; j++)
                 getCell(i,j).setAlive(random.nextBoolean());
         }
+
+    public void resize(int n, int m) {
+        numberOfRows = n;
+        numberOfColumns = m;
+        initializeCells();
+    }
 }
 

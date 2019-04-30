@@ -28,7 +28,11 @@ public class GameOfLife {
         timeline.setCycleCount(Animation.INDEFINITE);
 
     }
+    public void resizeGrid(int n, int m)
+    {
+        grid.resize(n,m);
 
+    }
     private void next() {
         grid.nextGeneration();
         generation.set(generation.get()+1);
@@ -88,10 +92,7 @@ public class GameOfLife {
     {
         return grid;
     }
-    public void updateCell(int i , int j)
-    {
-        grid.updateCell(i, j);
-    }
+    public void updateCell(int i , int j){grid.updateCell(i, j);}
     public void playGame()
     {
         timeline.play();

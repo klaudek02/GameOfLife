@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
@@ -16,11 +17,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class GameOfLifeController implements Initializable {
-    @FXML
-    private AnchorPane menuPane;
 
     @FXML
     private Button startButton;
@@ -43,77 +43,93 @@ public class GameOfLifeController implements Initializable {
     @FXML
     private GridPane visualizationPane;
 
+    @FXML
+    private AnchorPane wrapperOfVisualization;
+
     private GameOfLife gameOfLife;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gameOfLife = new GameOfLife(60,40);
+
+        gameOfLife = new GameOfLife(60, 40);
         stateChoiceBox.setItems(FXCollections.observableArrayList(States.values()));
         stateChoiceBox.getSelectionModel()
                 .selectedItemProperty()
-                .addListener( (ObservableValue<? extends States> observable, States oldValue, States newValue) -> {
-                    if(newValue != null)
-                    {
+                .addListener((ObservableValue<? extends States> observable, States oldValue, States newValue) -> {
+                    if (newValue != null) {
                         gameOfLife.updateState(newValue);
                     }
                 });
-        resizeVisualization();
-        startButton.setOnAction((e)->gameOfLife.playGame());
-        stopButton.setOnAction((e)->gameOfLife.stopGame());
+        resizeVisualization(60, 40);
+        startButton.setOnAction(e -> gameOfLife.playGame());
+        stopButton.setOnAction(e -> gameOfLife.stopGame());
+        updateButton.setOnAction(e -> {
+            int n = Integer.parseInt(nSizeField.getText());
+            int m = Integer.parseInt(mSizeField.getText());
+            if (n > 5 && m > 5)
+                resizeVisualization(n, m);
+        });
     }
 
 
-    public void resizeVisualization()
-    {
+    public void resizeVisualization(int n, int m) {
+        gameOfLife.resizeGrid(n, m);
         Grid grid = gameOfLife.getGrid();
-        visualizationPane.getChildren().clear();
-        while(visualizationPane.getRowConstraints().size() > 0){
-            visualizationPane.getRowConstraints().remove(0);
-        }
-        while(visualizationPane.getColumnConstraints().size() > 0){
-            visualizationPane.getColumnConstraints().remove(0);
-        }
-        // ?/visualizationGridPane.resize(20,20);
-        double sizee = 0;
-        double width =  100./ 40;
-        double height = 100./ 60;
-        for (int i = 0; i < 40; i++) {
+        cleanVisualizationPane();
+        double width = 100. / m;
+        double height = 100. / n;
+        for (int i = 0; i < m; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
             colConst.setHgrow(Priority.ALWAYS);
             colConst.setPercentWidth(width);
             visualizationPane.getColumnConstraints().add(colConst);
         }
-        for(int i = 0; i <60; i++){
+        for (int i = 0; i < n; i++) {
             RowConstraints rowConst = new RowConstraints();
             rowConst.setVgrow(Priority.ALWAYS);
             rowConst.setPercentHeight(height);
             visualizationPane.getRowConstraints().add(rowConst);
         }
 
-        for(int i = 0; i < 60; i++)
-            for(int j = 0; j <40; j++){
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++) {
                 StackPane square = new StackPane();
                 updateColor(square, false);
 
                 final int ii = i;
                 final int jj = j;
-                square.setOnMouseClicked(e-> {
+                square.setOnMouseClicked(e -> {
                     gameOfLife.updateCell(ii, jj);
 
                 });
-                grid.getCell(i,j).aliveProperty().addListener((e) -> {
-                    updateColor(square, grid.getCell(ii,jj).isAlive());
+                grid.getCell(i, j).aliveProperty().addListener((e) -> {
+                    updateColor(square, grid.getCell(ii, jj).isAlive());
                 });
 
-                visualizationPane.add(square,j,i);
+                visualizationPane.add(square, j, i);
             }
+        Optional<Node> square = visualizationPane.getChildren().stream().filter(s -> s instanceof StackPane).findFirst();
+        StackPane stackPane = (StackPane) square.get();
+        double paneWidth = stackPane.getWidth();
+        double paneHeight = stackPane.getHeight();
+
+    }
+
+    private void cleanVisualizationPane() {
+
+        visualizationPane.getChildren().clear();
+        while (visualizationPane.getRowConstraints().size() > 0) {
+            visualizationPane.getRowConstraints().remove(0);
+        }
+        while (visualizationPane.getColumnConstraints().size() > 0) {
+            visualizationPane.getColumnConstraints().remove(0);
+        }
     }
 
     private void updateColor(StackPane square, boolean alive) {
-        if(alive){
+        if (alive) {
             square.setStyle("-fx-background-color: black; -fx-border-color: black");
-        }
-        else{
+        } else {
             square.setStyle("-fx-background-color: white; -fx-border-color: black");
         }
 
