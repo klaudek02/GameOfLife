@@ -12,7 +12,6 @@ public class GameOfLife {
 
     private final Grid grid;
     private Timeline timeline;
-    private final ReadOnlyLongWrapper generation = new ReadOnlyLongWrapper();
     private States state;
 
     public GameOfLife(int n, int m) {
@@ -35,7 +34,6 @@ public class GameOfLife {
     }
     private void next() {
         grid.nextGeneration();
-        generation.set(generation.get()+1);
     }
 
     public void updateState(States newState) {
@@ -81,7 +79,6 @@ public class GameOfLife {
     private void cleanBoard() {
         stopGame();
         grid.makeEveryCellDead();
-        generation.set(0);
     }
 
     private void buildGrid()
