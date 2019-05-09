@@ -118,14 +118,14 @@ public class GameOfLifeController implements Initializable {
     private void cleanVisualizationPane() {
 
         visualizationPane.getChildren().clear();
-      /*  while (visualizationPane.getRowConstraints().size() > 0) {
+        while (visualizationPane.getRowConstraints().size() > 0) {
             visualizationPane.getRowConstraints().remove(0);
         }
         while (visualizationPane.getColumnConstraints().size() > 0) {
             visualizationPane.getColumnConstraints().remove(0);
         }
 
-       */
+       
     }
 
     private void updateColor(StackPane square, boolean alive) {
