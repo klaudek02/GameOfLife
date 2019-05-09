@@ -21,7 +21,7 @@
       </AnchorPane>
    </right>
    <center>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: pink;" BorderPane.alignment="CENTER">
+      <AnchorPane fx:id="wrapperOfVisualization" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: pink;" BorderPane.alignment="CENTER">
          <children>
             <GridPane fx:id="visualizationPane" prefHeight="400.0" prefWidth="529.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="8.0">
               <columnConstraints>

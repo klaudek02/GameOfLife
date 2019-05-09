@@ -76,7 +76,7 @@ public class GameOfLifeController implements Initializable {
         gameOfLife.resizeGrid(n, m);
         Grid grid = gameOfLife.getGrid();
         cleanVisualizationPane();
-        double width = 100. / m;
+  /*      double width = 100. / m;
         double height = 100. / n;
         for (int i = 0; i < m; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
@@ -90,12 +90,16 @@ public class GameOfLifeController implements Initializable {
             rowConst.setPercentHeight(height);
             visualizationPane.getRowConstraints().add(rowConst);
         }
+*/
+        double width = visualizationPane.getWidth()/m;
+        double height = visualizationPane.getHeight()/n;
 
+        int size = (int)(width > height ? height:width);
         for (int i = 0; i < n; i++)
             for (int j = 0; j < m; j++) {
                 StackPane square = new StackPane();
                 updateColor(square, false);
-
+                square.setMinSize(size,size);
                 final int ii = i;
                 final int jj = j;
                 square.setOnMouseClicked(e -> {
@@ -108,10 +112,6 @@ public class GameOfLifeController implements Initializable {
 
                 visualizationPane.add(square, j, i);
             }
-        Optional<Node> square = visualizationPane.getChildren().stream().filter(s -> s instanceof StackPane).findFirst();
-        StackPane stackPane = (StackPane) square.get();
-        double paneWidth = stackPane.getWidth();
-        double paneHeight = stackPane.getHeight();
 
     }
 
